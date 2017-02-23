@@ -1,5 +1,5 @@
 # TPondof
-由 [Trumeet](lyt.letitfly.me) 发起的鱼塘 Android App  
+由 [Trumeet](https://lyt.letitfly.me) 发起的鱼塘 Android App  :
 # 为什么叫  `T`Pondof
 因为昨天立项的时候Trumeet还没有确定是否要继续做，只不过是试试（雾  
 所以叫 TPondf，T是Trumeet的意思，即使群里决定暂不开发App，也可以叫做非官方的客户端。  
