@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Fishpond</string>
+    <string name="toast_error">Catch An Error</string>
+    <!-- 主题小标题。 Trumeet 5天前 -->
+    <string name="text_post_summary">%1$s %2$s</string>
+</resources>
