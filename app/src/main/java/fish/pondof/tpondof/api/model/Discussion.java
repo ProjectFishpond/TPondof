@@ -1,5 +1,8 @@
 package fish.pondof.tpondof.api.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Administrator on 2017/2/22.
  */
@@ -35,6 +38,28 @@ public class Discussion {
     private String vingleShareSocial;
     private String contentHtml;
     private User lastUser;
+    private List<Integer> tags = new ArrayList<>();
+
+    /**
+     * Used to query by tag.
+     * @see Tag
+     * @return Like this: [TAG ID=1][TAG ID=2]
+     */
+    public String buildTagsString () {
+        String s = "";
+        for (Integer integer : tags) {
+            s += Tag.toString(integer);
+        }
+        return s;
+    }
+
+    public List<Integer> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Integer> tags) {
+        this.tags = tags;
+    }
 
     public User getLastUser() {
         return lastUser;

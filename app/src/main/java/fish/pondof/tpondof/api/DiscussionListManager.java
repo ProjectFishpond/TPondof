@@ -1,6 +1,5 @@
 package fish.pondof.tpondof.api;
 
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSONArray;
@@ -25,9 +24,8 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class DiscussionListManager {
     private static final String TAG = "DiscussionListManager";
-    public static List<Discussion> getList (@Nullable String t) throws APIException {
+    public static List<Discussion> getList () throws APIException {
         if (DEBUG) Log.i(TAG, "-> getList");
-        if (DEBUG) Log.d(TAG, "T=" + t);
         List<Discussion> list = new ArrayList<>();
         try {
             JSONObject rootObject = JSONObject.parseObject(NetworkUtil.get(ApiManager.API_DISCUSSIONS));
@@ -64,7 +62,15 @@ public class DiscussionListManager {
                 JSONObject startPost = relationships.getJSONObject("startPost");
                 JSONObject tags = relationships.getJSONObject("tags");
 
-                // TODO: StartPost, Tags
+                // TODO: StartPost
+
+                JSONArray tagsArray = tags.getJSONArray("data");
+                List<Integer> t = discussion.getTags();
+                for (int j = 0; j < tagsArray.size(); j ++) {
+                    JSONObject tagObject = tagsArray.getJSONObject(j);
+                    t.add(tagObject.getInteger("id"));
+                }
+                discussion.setTags(t);
 
                 discussion.setAuthor(UserItemManager.getUserInfo(startUser.getJSONObject("data").getInteger("id")));
                 discussion.setLastUser(UserItemManager.getUserInfo(lastUser.getJSONObject("data").getInteger("id")));
