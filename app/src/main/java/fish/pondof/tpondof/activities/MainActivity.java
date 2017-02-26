@@ -10,7 +10,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -33,6 +36,7 @@ import fish.pondof.tpondof.api.TagManager;
 import fish.pondof.tpondof.api.model.Discussion;
 import fish.pondof.tpondof.api.model.Tag;
 import fish.pondof.tpondof.util.IconBuilder;
+import fish.pondof.tpondof.util.Utils;
 import fish.pondof.tpondof.util.adapters.DiscussionListAdapter;
 import rx.Observable;
 import rx.Subscriber;
@@ -49,6 +53,11 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 public class MainActivity extends AppCompatActivity {
     @BindView(R.id.list)
     ListView mListView;
+    /**
+     * @see <a href="http://stackoverflow.com/questions/26495530/how-to-make-the-toolbar-title-clickable-exactly-like-on-actionbar-without-setti" />
+     */
+    @BindView(R.id.toolbar_title)
+    TextView mTextTitle;
     @BindView(R.id.swipe)
     SwipeRefreshLayout mSwipeRefreshLayout;
     private List<Discussion> mDiscussionList = new ArrayList<>();
@@ -57,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
     private List<Tag> mTags;
     private List<Tag> mParentTags;
     private List<Discussion> mQueriedDiscussionList = new ArrayList<>();
-    private String mSelectedFilter;
+    private Tag mSelectedFilter;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -97,27 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withActionBarDrawerToggle(true)
                 .withAccountHeader(headerResult)
-                .withToolbar(toolbar)
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        /**
-                         * <strong>CAUTION!!!</strong>
-                         * Now use <code>mParentTags</code> as list of drawer item list.
-                         * Please use <code>mParentTags.get(position)</code> to get current item!
-                         * And pos 0 is "All" filter.
-                         */
-                        if (position != 0) {
-                            Tag tag = mParentTags.get(position);
-                            setTitle(tag.getName());
-                            mSelectedFilter = tag.toString();
-                        } else {
-                            mSelectedFilter = null;
-                        }
-                        query();
-                        return false;
-                    }
-                })
+                .withToolbar(mToolbar)
                 .build();
 
         mDiscussionListAdapter = new DiscussionListAdapter(this, mQueriedDiscussionList);
@@ -198,14 +189,23 @@ public class MainActivity extends AppCompatActivity {
         final String TAG = "Query";
         if (DEBUG) Log.i(TAG, "-> start");
         if (DEBUG) Log.i(TAG, "Total Size:" + mDiscussionList.size());
+        mQueriedDiscussionList.clear();
+        mDiscussionListAdapter.notifyDataSetChanged();
         for (Discussion d : mDiscussionList) {
-            if (mSelectedFilter != null && !mSelectedFilter.isEmpty()) {
+            if (mSelectedFilter != null) {
+                boolean finished = false;
                 if (DEBUG) Log.i(TAG, "Querying...");
                 /**
-                 * TODO:Query.
-                 * Query mDiscussionList -> mQueriedDiscussionList
-                 * query tag by mSelectedFilter
+                 * TODO:这算法太tm垃圾了
                  */
+                for (Integer integer : d.getTags()) {
+                    if (finished)
+                        continue;
+                    if (mSelectedFilter.getId() == integer) {
+                        finished = true;
+                        mQueriedDiscussionList.add(d);
+                    }
+                }
             } else {
                 if (DEBUG) Log.i(TAG, "Filter word not set, add" + d);
                 mQueriedDiscussionList.add(d);
@@ -253,8 +253,13 @@ public class MainActivity extends AppCompatActivity {
                         if (DEBUG) Log.e(TAG, "-> onError");
                         e.printStackTrace();
                         mSwipeRefreshLayout.setRefreshing(false);
-                        Snackbar.make(mListView, R.string.toast_error
-                                , Snackbar.LENGTH_LONG).show();
+                        if (e instanceof APIException && ((APIException)e).isIOException()) {
+                            Snackbar.make(mListView, R.string.toast_error
+                                    , Snackbar.LENGTH_LONG).show();
+                        } else {
+                            Snackbar.make(mListView, R.string.toast_error
+                                    , Snackbar.LENGTH_LONG).show();
+                        }
                     }
 
                     @Override
@@ -262,21 +267,33 @@ public class MainActivity extends AppCompatActivity {
                         if (DEBUG) Log.i(TAG, "-> onCompleted");
                         mSwipeRefreshLayout.setRefreshing(false);
                         if (mTags != null) {
-                            mNavigationDrawer.removeAllItems();
-                            mNavigationDrawer.addItem(
-                                    new PrimaryDrawerItem()
-                                            .withName(R.string.filter_all)
-                            );
-                            for (Tag tag : mParentTags) {
-                                PrimaryDrawerItem item = new PrimaryDrawerItem().withName(tag.getName());
-                                if (tag.getIconUrl() == null ||
-                                        tag.getIconUrl().isEmpty()) {
-                                    item.withIcon(new IconBuilder(MainActivity.this, tag.getColor()).build());
-                                } else {
-                                    item.withIcon(new ImageHolder(tag.getIconUrl()));
+                            mTextTitle.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if (mSwipeRefreshLayout.isRefreshing()) {
+                                        if (DEBUG) Log.e(TAG, "Refreshing, not show sheet");
+                                        return;
+                                    }
+                                    if (DEBUG) Log.i(TAG, "Showing bottom sheet");
+                                    BottomSheetLayout bottomSheet = (BottomSheetLayout)findViewById(R.id.bottomsheet);
+                                    Utils.pickTags(bottomSheet, new Utils.OnTagSelectedListener() {
+                                        @Override
+                                        public void onSelected(Tag tag) {
+                                            mTextTitle.setText(tag.getName());
+                                            mSelectedFilter = tag;
+                                            query();
+                                        }
+
+                                        @Override
+                                        public void onSpecialSelected(int id) {
+                                            mTextTitle.setText(R.string.filter_all);
+                                            mSelectedFilter = null;
+                                            query();
+                                        }
+                                    }, mParentTags);
                                 }
-                                mNavigationDrawer.addItem(item);
-                            }
+                            });
+                            mTextTitle.setText(R.string.filter_all);
                         }
                         refresh();
                     }

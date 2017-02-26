@@ -1,9 +1,11 @@
 package fish.pondof.tpondof.api;
 
+import java.io.IOException;
 import java.security.PrivilegedActionException;
 
 /**
  * Created by Administrator on 2017/2/22.
+ * @author Trumeet
  */
 
 public class APIException extends Exception {
@@ -15,7 +17,7 @@ public class APIException extends Exception {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public APIException(String message) {
+    APIException(String message) {
         super(message);
     }
 
@@ -33,7 +35,7 @@ public class APIException extends Exception {
      *                unknown.)
      * @since 1.4
      */
-    public APIException(String message, Throwable cause) {
+    APIException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -51,25 +53,17 @@ public class APIException extends Exception {
      *              unknown.)
      * @since 1.4
      */
-    public APIException(Throwable cause) {
+    APIException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * Constructs a new exception with the specified detail message,
-     * cause, suppression enabled or disabled, and writable stack
-     * trace enabled or disabled.
-     *
-     * @param message            the detail message.
-     * @param cause              the cause.  (A {@code null} value is permitted,
-     *                           and indicates that the cause is nonexistent or unknown.)
-     * @param enableSuppression  whether or not suppression is enabled
-     *                           or disabled
-     * @param writableStackTrace whether or not the stack trace should
-     *                           be writable
-     * @since 1.7
+     * Returns is IOException.
+     * @see IOException
+     * @return Is IOException
      */
-    protected APIException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public boolean isIOException () {
+        // TODO: Fix it later..
+        return getClass().getName().equals(IOException.class.getName());
     }
 }

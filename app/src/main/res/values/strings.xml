@@ -4,4 +4,6 @@
     <!-- 主题小标题。 Trumeet 5天前 -->
     <string name="text_post_summary">%1$s %2$s</string>
     <string name="filter_all">All</string>
+    <string name="err_network">Network Broken</string>
+    <string name="title_tags">Tags</string>
 </resources>
