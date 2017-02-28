@@ -1,11 +1,35 @@
 package fish.pondof.tpondof.api.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Administrator on 2017/2/22.
  */
 
-public class Group {
+public class Group implements Parcelable{
     private int id;
+
+    protected Group(Parcel in) {
+        id = in.readInt();
+        nameSingular = in.readString();
+        namePlural = in.readString();
+        color = in.readString();
+        icon = in.readString();
+        vingleShareSocial = in.readString();
+    }
+
+    public static final Creator<Group> CREATOR = new Creator<Group>() {
+        @Override
+        public Group createFromParcel(Parcel in) {
+            return new Group(in);
+        }
+
+        @Override
+        public Group[] newArray(int size) {
+            return new Group[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -60,4 +84,19 @@ public class Group {
     private String color;
     private String icon;
     private String vingleShareSocial;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(nameSingular);
+        parcel.writeString(namePlural);
+        parcel.writeString(color);
+        parcel.writeString(icon);
+        parcel.writeString(vingleShareSocial);
+    }
 }

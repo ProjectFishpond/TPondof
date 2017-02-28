@@ -1,21 +1,50 @@
 package fish.pondof.tpondof.api.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Trumeet on 2017/2/25.
  * A Tag model.
  * @author Trumeet
  */
 
-public class Tag {
+public class Tag implements Parcelable {
+    public Tag () {}
+    protected Tag(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        description = in.readString();
+        slug = in.readString();
+        color = in.readInt();
+        backgroundUrl = in.readString();
+        backgroundMode = in.readString();
+        iconUrl = in.readString();
+        discussionsCount = in.readInt();
+        position = in.readInt();
+        defaultSort = in.readString();
+        isChild = in.readByte() != 0;
+        isHidden = in.readByte() != 0;
+        lastTime = in.readString();
+        canStartDiscussion = in.readByte() != 0;
+        canAddToDiscussion = in.readByte() != 0;
+    }
+
+    public static final Creator<Tag> CREATOR = new Creator<Tag>() {
+        @Override
+        public Tag createFromParcel(Parcel in) {
+            return new Tag(in);
+        }
+
+        @Override
+        public Tag[] newArray(int size) {
+            return new Tag[size];
+        }
+    };
+
     @Override
     public String toString () {
         return "Tag[ID=" + id + "]";
-    }
-
-    public static String toString (int id) {
-        Tag tag = new Tag();
-        tag.setId(id);
-        return tag.toString();
     }
 
     private int id;
@@ -161,5 +190,30 @@ public class Tag {
 
     public void setCanAddToDiscussion(boolean canAddToDiscussion) {
         this.canAddToDiscussion = canAddToDiscussion;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(name);
+        parcel.writeString(description);
+        parcel.writeString(slug);
+        parcel.writeInt(color);
+        parcel.writeString(backgroundUrl);
+        parcel.writeString(backgroundMode);
+        parcel.writeString(iconUrl);
+        parcel.writeInt(discussionsCount);
+        parcel.writeInt(position);
+        parcel.writeString(defaultSort);
+        parcel.writeByte((byte) (isChild ? 1 : 0));
+        parcel.writeByte((byte) (isHidden ? 1 : 0));
+        parcel.writeString(lastTime);
+        parcel.writeByte((byte) (canStartDiscussion ? 1 : 0));
+        parcel.writeByte((byte) (canAddToDiscussion ? 1 : 0));
     }
 }

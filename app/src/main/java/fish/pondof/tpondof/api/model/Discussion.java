@@ -1,16 +1,61 @@
 package fish.pondof.tpondof.api.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Administrator on 2017/2/22.
+ * @author Trumeet
  */
 
-public class Discussion {
+public class Discussion implements Parcelable{
+    public Discussion () {}
+    protected Discussion(Parcel in) {
+        mID = in.readInt();
+        mTitle = in.readString();
+        mAuthor = in.readParcelable(User.class.getClassLoader());
+        slug = in.readString();
+        commentsCount = in.readInt();
+        participantsCount = in.readInt();
+        startTime = in.readString();
+        lastTime = in.readString();
+        lastPostNumber = in.readInt();
+        canReply = in.readByte() != 0;
+        canRename = in.readByte() != 0;
+        canDelete = in.readByte() != 0;
+        canHide = in.readByte() != 0;
+        readTime = in.readByte() != 0;
+        readNumber = in.readByte() != 0;
+        isApproved = in.readByte() != 0;
+        isLocked = in.readByte() != 0;
+        canLock = in.readByte() != 0;
+        isSticky = in.readByte() != 0;
+        canSticky = in.readByte() != 0;
+        subscription = in.readString();
+        canTag = in.readByte() != 0;
+        vingleShareSocial = in.readString();
+        contentHtml = in.readString();
+        lastUser = in.readParcelable(User.class.getClassLoader());
+    }
+
+    public static final Creator<Discussion> CREATOR = new Creator<Discussion>() {
+        @Override
+        public Discussion createFromParcel(Parcel in) {
+            return new Discussion(in);
+        }
+
+        @Override
+        public Discussion[] newArray(int size) {
+            return new Discussion[size];
+        }
+    };
+
     @Override
     public String toString () {
-        return "Discussion[ID=" + mID + "][TITLE=" + mTitle + "][AUTHOR=" + mAuthor + "]";
+        return "Discussion[ID=" + mID + "]";
     }
 
     private int mID;
@@ -39,19 +84,6 @@ public class Discussion {
     private String contentHtml;
     private User lastUser;
     private List<Integer> tags = new ArrayList<>();
-
-    /**
-     * Used to query by tag.
-     * @see Tag
-     * @return Like this: [TAG ID=1][TAG ID=2]
-     */
-    public String buildTagsString () {
-        String s = "";
-        for (Integer integer : tags) {
-            s += Tag.toString(integer);
-        }
-        return s;
-    }
 
     public List<Integer> getTags() {
         return tags;
@@ -259,5 +291,39 @@ public class Discussion {
 
     public void setAuthor(User mAuthor) {
         this.mAuthor = mAuthor;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(mID);
+        parcel.writeString(mTitle);
+        parcel.writeParcelable(mAuthor, i);
+        parcel.writeString(slug);
+        parcel.writeInt(commentsCount);
+        parcel.writeInt(participantsCount);
+        parcel.writeString(startTime);
+        parcel.writeString(lastTime);
+        parcel.writeInt(lastPostNumber);
+        parcel.writeByte((byte) (canReply ? 1 : 0));
+        parcel.writeByte((byte) (canRename ? 1 : 0));
+        parcel.writeByte((byte) (canDelete ? 1 : 0));
+        parcel.writeByte((byte) (canHide ? 1 : 0));
+        parcel.writeByte((byte) (readTime ? 1 : 0));
+        parcel.writeByte((byte) (readNumber ? 1 : 0));
+        parcel.writeByte((byte) (isApproved ? 1 : 0));
+        parcel.writeByte((byte) (isLocked ? 1 : 0));
+        parcel.writeByte((byte) (canLock ? 1 : 0));
+        parcel.writeByte((byte) (isSticky ? 1 : 0));
+        parcel.writeByte((byte) (canSticky ? 1 : 0));
+        parcel.writeString(subscription);
+        parcel.writeByte((byte) (canTag ? 1 : 0));
+        parcel.writeString(vingleShareSocial);
+        parcel.writeString(contentHtml);
+        parcel.writeParcelable(lastUser, i);
     }
 }

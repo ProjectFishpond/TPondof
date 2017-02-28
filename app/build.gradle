@@ -41,4 +41,5 @@ dependencies {
     compile 'com.github.javiersantos:BottomDialogs:1.2.1'
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
+    compile 'com.github.limedroid:XRichText:v1.0.0'
 }

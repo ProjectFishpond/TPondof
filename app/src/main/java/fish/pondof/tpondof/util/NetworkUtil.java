@@ -1,11 +1,17 @@
 package fish.pondof.tpondof.util;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 import com.alibaba.fastjson.JSONObject;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,28 +52,33 @@ public class NetworkUtil {
 
     public static void loadImage (String url, final ImageView imageView) {
         if (url == null || url.isEmpty()) {
-            new Picasso.Builder(imageView.getContext())
-                    .build()
-                    .load(R.mipmap.ic_avatar)
-                    .into(imageView);
+            imageView.setImageResource(R.mipmap.ic_avatar);
             return;
         }
-        new Picasso.Builder(imageView.getContext())
-                .build()
-                .load(url)
-                .into(imageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
-
-                    }
-
-                    @Override
-                    public void onError() {
-                        new Picasso.Builder(imageView.getContext())
-                                .build()
-                                .load(R.mipmap.ic_avatar)
-                                .into(imageView);
-                    }
-                });
+        buildPicasso(imageView.getContext(), url).into(imageView);
     }
+    public static RequestCreator buildPicasso (Context context, String url) {
+        return Picasso.with(context)
+                .load(url)
+                .placeholder(R.mipmap.ic_avatar)
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                .error(R.mipmap.ic_avatar);
+    }
+
+    @Nullable
+    public static Bitmap fromCache (Context context, String url) {
+        RequestCreator creator = buildPicasso(context, url)
+                .networkPolicy(NetworkPolicy.OFFLINE, NetworkPolicy.OFFLINE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE);
+        try {
+            return creator.get();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static void fetch (Context context, String url, Callback callback) {
+        buildPicasso(context, url).fetch(callback);
+    }
+
 }
