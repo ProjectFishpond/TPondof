@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.alibaba.fastjson.JSONObject;
@@ -25,6 +26,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static fish.pondof.tpondof.BuildConfig.DEBUG;
+
 /**
  * Created by Administrator on 2017/2/22.
  * @see <a href="http://www.cnblogs.com/ct2011/p/4001708.html" />
@@ -32,7 +35,9 @@ import okhttp3.Response;
  */
 
 public class NetworkUtil {
+    private static final String TAG = "Network";
     public static String get (String url) throws IOException {
+        if (DEBUG) Log.i(TAG, "Get requested:" + url);
         Request request = new Request.Builder()
                 .url(url)
                 .build();

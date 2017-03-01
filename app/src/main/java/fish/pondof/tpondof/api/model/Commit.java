@@ -20,9 +20,11 @@ public class Commit implements Parcelable{
     private boolean isApproved;
     private boolean canFlag;
     private boolean canLike;
-    private int user;
-    private List<Integer> likes; // Likes user id list
-    private List<Integer> metionedBy;
+    private User user;
+    private List<User> likes; // Likes user id list
+    private List<User> metionedBy;
+
+    public Commit() {}
 
     protected Commit(Parcel in) {
         id = in.readInt();
@@ -34,10 +36,10 @@ public class Commit implements Parcelable{
         isApproved = in.readByte() != 0;
         canFlag = in.readByte() != 0;
         canLike = in.readByte() != 0;
-        user = in.readInt();
+        user = in.readParcelable(User.class.getClassLoader());
+        likes = in.createTypedArrayList(User.CREATOR);
+        metionedBy = in.createTypedArrayList(User.CREATOR);
     }
-
-    public Commit() {}
 
     public static final Creator<Commit> CREATOR = new Creator<Commit>() {
         @Override
@@ -123,27 +125,27 @@ public class Commit implements Parcelable{
         this.canLike = canLike;
     }
 
-    public int getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(int user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public List<Integer> getLikes() {
+    public List<User> getLikes() {
         return likes;
     }
 
-    public void setLikes(List<Integer> likes) {
+    public void setLikes(List<User> likes) {
         this.likes = likes;
     }
 
-    public List<Integer> getMetionedBy() {
+    public List<User> getMetionedBy() {
         return metionedBy;
     }
 
-    public void setMetionedBy(List<Integer> metionedBy) {
+    public void setMetionedBy(List<User> metionedBy) {
         this.metionedBy = metionedBy;
     }
 
@@ -163,6 +165,8 @@ public class Commit implements Parcelable{
         parcel.writeByte((byte) (isApproved ? 1 : 0));
         parcel.writeByte((byte) (canFlag ? 1 : 0));
         parcel.writeByte((byte) (canLike ? 1 : 0));
-        parcel.writeInt(user);
+        parcel.writeParcelable(user, i);
+        parcel.writeTypedList(likes);
+        parcel.writeTypedList(metionedBy);
     }
 }

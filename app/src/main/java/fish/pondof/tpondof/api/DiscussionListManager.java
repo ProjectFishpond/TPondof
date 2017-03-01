@@ -20,6 +20,7 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 /**
  * Created by Administrator on 2017/2/22.
+ * @author Trumeet
  */
 
 public class DiscussionListManager {
@@ -28,10 +29,26 @@ public class DiscussionListManager {
         if (DEBUG) Log.i(TAG, "-> getList");
         List<Discussion> list = new ArrayList<>();
         try {
-            JSONObject rootObject = JSONObject.parseObject(NetworkUtil.get(ApiManager.API_DISCUSSIONS));
+            JSONObject rootObject = JSONObject.parseObject(NetworkUtil
+                    .get(ApiManager.API_DISCUSSIONS));
             if (DEBUG) Log.i(TAG, "Json Parsed");
             JSONArray dataArray = rootObject.getJSONArray("data");
             if (DEBUG) Log.i(TAG, "Data Size:" + dataArray.size());
+            JSONArray included = rootObject.getJSONArray("included");
+            if (DEBUG) Log.i(TAG, "Included Size:" + included.size());
+            for (int i = 0; i < included.size(); i ++) {
+                JSONObject object = included.getJSONObject(i);
+                String type = object.getString("type");
+                if (type.equals("users")) {
+                    if (DEBUG) Log.i(TAG, "Get User");
+                    // Just cache it
+                    UserItemManager.getUserInfo(object.getInteger("id"), object, false);
+                } else if (type.equals("tags")) {
+                    if (DEBUG) Log.i(TAG, "Get Tag");
+                    // Cache it
+                    TagManager.getTag(object.getInteger("id"), object);
+                }
+            }
             for (int i = 0; i < dataArray.size(); i ++) {
                 JSONObject object = dataArray.getJSONObject(i);
                 JSONObject attributes = object.getJSONObject("attributes");

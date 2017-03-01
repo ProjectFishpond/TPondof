@@ -6,7 +6,7 @@ package fish.pondof.tpondof.api;
  */
 
 public class ApiManager {
-    static final String URL = "https://pondof.fish/";
+    public static final String URL = "https://pondof.fish/";
     static final String API_DISCUSSIONS = URL + "/api/discussions";
     static final String API_USER_BY_ID = URL + "/api/users/";
     static final String API_TAGS = URL + "/api/tags";

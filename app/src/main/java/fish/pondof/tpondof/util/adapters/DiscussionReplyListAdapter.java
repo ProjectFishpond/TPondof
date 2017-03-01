@@ -3,6 +3,7 @@ package fish.pondof.tpondof.util.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,11 @@ import java.util.List;
 import cn.droidlover.xrichtext.ImageLoader;
 import cn.droidlover.xrichtext.XRichText;
 import fish.pondof.tpondof.R;
+import fish.pondof.tpondof.api.ApiManager;
 import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.util.NetworkUtil;
+
+import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 /**
  * Created by Trumeet on 2017/2/27.
@@ -41,8 +45,13 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
         }
         // TODO
         Commit commit = mCommitList.get(position);
+
+        TextView userNameText = (TextView) convertView.findViewById(android.R.id.text1);
+        userNameText.setText(commit.getUser().getUsername());
+
         XRichText contentText = (XRichText) convertView.findViewById(android.R.id.text2);
         contentText.callback(new XRichText.Callback() {
+            private static final String TAG = "RichText";
             @Override
             public void onImageClick(List<String> urlList, int position) {
 
@@ -58,12 +67,16 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
 
             }
         }).imageDownloader(new ImageLoader() {
+            private static final String TAG = "RichText-ImageLoader";
             @Override
             public Bitmap getBitmap(String url) throws IOException {
+                if (DEBUG) Log.i(TAG, "-> getBitmap");
+                if (DEBUG) Log.i(TAG, url);
                 String urlNew = url;
                 if (!urlNew.startsWith("http:") && !urlNew.startsWith("https:")) {
-                    urlNew = "http:" + urlNew;
+                    urlNew = ApiManager.URL + url;
                 }
+                if (DEBUG) Log.i(TAG, "Load url:" + urlNew);
                 return NetworkUtil.buildPicasso(mContext, urlNew).get();
             }
         }).text(commit.getContentHtml());

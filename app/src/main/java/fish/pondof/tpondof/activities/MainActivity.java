@@ -89,10 +89,6 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (mTags == null || mTags.isEmpty() || mParentTags == null || mParentTags.isEmpty()) {
-                    loadFilters();
-                    return;
-                }
                 refresh();
             }
         });
@@ -126,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         mDiscussionListAdapter = new DiscussionListAdapter(this, mQueriedDiscussionList);
         mListView.setAdapter(mDiscussionListAdapter);
 
-        loadFilters();
+        refresh();
     }
 
     @Override
@@ -183,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCompleted() {
                 if (DEBUG) Log.i(TAG, "-> onCompleted");
+                loadFilters();
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (mList != null && mList.size() > 0) {
                     mDiscussionList.clear();
@@ -232,18 +229,14 @@ public class MainActivity extends AppCompatActivity {
             public void call(Subscriber<? super Object> subscriber) {
                 if (DEBUG) Log.i(TAG, "-> subscribe -> " + Thread.currentThread().getName());
                 subscriber.onStart();
-                try {
-                    mTags = TagManager.getTags();
-                    mParentTags = new ArrayList<>();
-                    for (Tag tag : mTags) {
-                        if (!tag.isChild()) {
-                            mParentTags.add(tag);
-                        }
+                mTags = TagManager.getCachedTags();
+                mParentTags = new ArrayList<>();
+                for (Tag tag : mTags) {
+                    if (!tag.isChild()) {
+                        mParentTags.add(tag);
                     }
-                    subscriber.onCompleted();
-                } catch (APIException e) {
-                    subscriber.onError(e);
                 }
+                subscriber.onCompleted();
             }
         });
         loadFiltersObservable.subscribeOn(Schedulers.newThread())
@@ -307,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
                             });
                             mTextTitle.setText(R.string.filter_all);
                         }
-                        refresh();
+                        //refresh();
                     }
                 });
     }

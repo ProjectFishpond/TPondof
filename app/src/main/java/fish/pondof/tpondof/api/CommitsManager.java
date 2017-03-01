@@ -13,6 +13,7 @@ import java.util.List;
 
 import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.api.model.Discussion;
+import fish.pondof.tpondof.api.model.User;
 import fish.pondof.tpondof.util.NetworkUtil;
 
 import static fish.pondof.tpondof.BuildConfig.DEBUG;
@@ -34,9 +35,17 @@ public class CommitsManager {
             if (DEBUG) Log.i(TAG, "Total size: " + included.size());
             for (int i = 0; i < included.size(); i ++) {
                 JSONObject object = included.getJSONObject(i);
-                if (!object.getString("type").equals("posts")) {
-                    if (DEBUG) Log.w(TAG, "Not a post, just skip");
-                    continue;
+                String type = object.getString("type");
+                if (!type.equals("posts")) {
+                    if (type.equals("users")) {
+                        if (DEBUG) Log.i(TAG, "Get a user");
+                        UserItemManager.getUserInfo(object.getInteger("id")
+                                , object, false);
+                        continue;
+                    } else {
+                        if (DEBUG) Log.w(TAG, "Not a post, just skip");
+                        continue;
+                    }
                 }
                 JSONObject attributes = object.getJSONObject("attributes");
                 Commit commit = new Commit();
@@ -50,20 +59,24 @@ public class CommitsManager {
                 commit.setApproved(attributes.getBoolean("canApprove"));
                 commit.setCanLike(attributes.getBoolean("canLike"));
                 JSONObject relationships = object.getJSONObject("relationships");
-                commit.setUser(relationships.getJSONObject("user").getJSONObject("data").getInteger("id"));
+                commit.setUser(UserItemManager.getUserInfo(relationships.getJSONObject("user")
+                        .getJSONObject("data").getInteger("id")));
                 JSONArray likes = relationships.getJSONObject("likes").getJSONArray("data");
-                List<Integer> likesList = new ArrayList<>();
+                List<User> likesList = new ArrayList<>();
                 for (int j = 0; j < likes.size(); j ++) {
-                    likesList.add(likes.getJSONObject(i).getInteger("id"));
+                    likesList.add(UserItemManager.getUserInfo(likes.getJSONObject(i)
+                            .getInteger("id")));
                 }
                 commit.setLikes(likesList);
+                /*
                 JSONArray mentionedBy = relationships.getJSONObject("mentionedBy")
                         .getJSONArray("data");
-                List<Integer> mentionedByList = new ArrayList<>();
+                List<User> mentionedByList = new ArrayList<>();
                 for (int j = 0; j < mentionedBy.size(); j ++) {
-                    mentionedByList.add(mentionedBy.getJSONObject(j).getInteger("id"));
+                    mentionedByList.add(UserItemManager.getUserInfo(mentionedBy.getJSONObject(j).getInteger("id")));
                 }
                 commit.setMetionedBy(mentionedByList);
+                */
                 if (DEBUG) Log.i(TAG, "Adding " + commit);
                 commits.add(commit);
             }
