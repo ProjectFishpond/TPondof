@@ -42,4 +42,5 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
     compile 'com.github.limedroid:XRichText:v1.0.0'
+    compile 'com.github.chrisbanes:PhotoView:1.3.1'
 }

@@ -1,23 +1,34 @@
 package fish.pondof.tpondof.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.droidlover.xrichtext.XRichText;
+import fish.pondof.tpondof.App;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.APIException;
+import fish.pondof.tpondof.api.ApiManager;
 import fish.pondof.tpondof.api.CommitsManager;
 import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.api.model.Discussion;
@@ -62,13 +73,12 @@ public class DiscussionViewActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_discussion_view);
         ButterKnife.bind(this);
-        /**
-         * Not support swipe refresh.
-         */
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //refresh();
+                mListView.setAdapter(null);
+                mAdapter = null;
+                App.getCache().remove(ApiManager.API_DISCUSSIONS + "/" + mDiscussion.getID());
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -129,6 +139,28 @@ public class DiscussionViewActivity extends AppCompatActivity {
                         setTitle(mDiscussion.getTitle());
                         mAdapter = new DiscussionReplyListAdapter(DiscussionViewActivity.this
                                 , mCommitList);
+                        mAdapter.setListener(new DiscussionReplyListAdapter.CommitListener() {
+                            @Override
+                            public void onJump(Commit commit, final int id) {
+                                AlertDialog dialog = new AlertDialog.Builder(DiscussionViewActivity.this)
+                                        .setTitle("#" + id)
+                                        .setMessage(Html.fromHtml(commit.getContentHtml(), new Html.ImageGetter() {
+                                            @Override
+                                            public Drawable getDrawable(String s) {
+                                                // Not show image
+                                                return new ColorDrawable(Color.WHITE);
+                                            }
+                                        }, null))
+                                        .setPositiveButton(R.string.action_goto, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                mListView.smoothScrollToPosition(id);
+                                            }
+                                        })
+                                        .create();
+                                dialog.show();
+                            }
+                        });
                         mListView.setAdapter(mAdapter);
                     }
                 });

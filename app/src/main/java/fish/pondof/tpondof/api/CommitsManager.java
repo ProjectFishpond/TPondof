@@ -9,6 +9,8 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import fish.pondof.tpondof.api.model.Commit;
@@ -80,6 +82,18 @@ public class CommitsManager {
                 if (DEBUG) Log.i(TAG, "Adding " + commit);
                 commits.add(commit);
             }
+            // Sort by number
+            Collections.sort(commits, new Comparator<Commit>() {
+                @Override
+                public int compare(Commit commit, Commit t1) {
+                    if (commit.getNumber() > t1.getNumber()) {
+                        return 1;
+                    } else if (commit.getNumber() < t1.getNumber()) {
+                        return -1;
+                    }
+                    return 0;
+                }
+            });
             return commits;
         } catch (IOException|JSONException|NullPointerException e) {
             throw new APIException(e);

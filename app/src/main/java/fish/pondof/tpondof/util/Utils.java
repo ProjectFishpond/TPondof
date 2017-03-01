@@ -1,13 +1,20 @@
 package fish.pondof.tpondof.util;
 
+import android.text.TextUtils;
+import android.util.Pair;
 import android.view.MenuItem;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import fish.pondof.tpondof.R;
+import fish.pondof.tpondof.api.ApiManager;
+import fish.pondof.tpondof.api.CommitsManager;
+import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.api.model.Tag;
 
 /**
@@ -52,5 +59,17 @@ public class Utils {
         }
         view.updateMenu();
         layout.showWithSheetView(view);
+    }
+
+    public static int isCommitJump (String url) {
+        if (!url.startsWith(ApiManager.URL)) {
+            return -1;
+        }
+        String s = url.substring(ApiManager.URL.length() + 2);
+        String[] strings = s.split("/");
+        if (TextUtils.isDigitsOnly(strings[0]) && TextUtils.isDigitsOnly(strings[1])) {
+            return Integer.parseInt(strings[1]);
+        }
+        return -1;
     }
 }

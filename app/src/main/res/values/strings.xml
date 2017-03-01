@@ -6,4 +6,5 @@
     <string name="filter_all">All</string>
     <string name="err_network">Network Broken</string>
     <string name="title_tags">Tags</string>
+    <string name="action_goto">GoTo</string>
 </resources>

@@ -2,19 +2,33 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="16dp">
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/avatar"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp">
+    <LinearLayout
         android:paddingStart="16dp"
-        android:src="@mipmap/ic_avatar"
-        android:layout_width="@dimen/post_item_avatar_width"
-        android:layout_height="@dimen/post_item_avatar_height" />
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/avatar"
+            android:src="@mipmap/ic_avatar"
+            android:layout_width="@dimen/post_item_avatar_width"
+            android:layout_height="@dimen/post_item_avatar_height" />
+        <TextView
+            android:id="@+id/text_pos"
+            android:text="@string/app_name"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
     <RelativeLayout
         android:layout_centerVertical="true"
         android:paddingStart="72dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView
+            android:paddingTop="3dp"
             android:text="@string/app_name"
             android:textSize="12sp"
             android:id="@android:id/text1"

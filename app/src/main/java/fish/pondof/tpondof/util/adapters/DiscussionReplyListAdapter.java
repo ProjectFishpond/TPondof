@@ -3,6 +3,7 @@ package fish.pondof.tpondof.util.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +16,12 @@ import java.util.List;
 
 import cn.droidlover.xrichtext.ImageLoader;
 import cn.droidlover.xrichtext.XRichText;
+import de.hdodenhof.circleimageview.CircleImageView;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.ApiManager;
 import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.util.NetworkUtil;
+import fish.pondof.tpondof.util.Utils;
 
 import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
@@ -30,6 +33,15 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 public class DiscussionReplyListAdapter extends ArrayAdapter {
     private Context mContext;
     private List<Commit> mCommitList;
+    private CommitListener mListener;
+
+    public interface CommitListener {
+        void onJump (Commit commit, int id);
+    }
+
+    public void setListener (@Nullable CommitListener listener) {
+        mListener = listener;
+    }
 
     public DiscussionReplyListAdapter (Context context, List<Commit> commits) {
         super(context, 0, commits);
@@ -59,12 +71,19 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
 
             @Override
             public boolean onLinkClick(String url) {
+                if (DEBUG) Log.i(TAG, "onLinkClick:" + url);
+                int index = Utils.isCommitJump(url);
+                if (index != -1) {
+                    if (mListener != null) {
+                        mListener.onJump(mCommitList.get(index), index);
+                        return true;
+                    }
+                }
                 return false;
             }
 
             @Override
             public void onFix(XRichText.ImageHolder holder) {
-
             }
         }).imageDownloader(new ImageLoader() {
             private static final String TAG = "RichText-ImageLoader";
@@ -80,6 +99,13 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
                 return NetworkUtil.buildPicasso(mContext, urlNew).get();
             }
         }).text(commit.getContentHtml());
+
+        TextView posText = (TextView) convertView.findViewById(R.id.text_pos);
+        posText.setText("#" + position);
+
+        CircleImageView avatar = (CircleImageView) convertView.findViewById(R.id.avatar);
+        NetworkUtil.loadImage(commit.getUser().getAvatarUrl(), avatar);
+
         return convertView;
     }
 }
