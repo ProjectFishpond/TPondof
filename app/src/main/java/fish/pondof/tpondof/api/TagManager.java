@@ -67,10 +67,10 @@ public class TagManager {
         return tags;
     }
 
-    public static List<Tag> getTags () throws APIException {
+    public static List<Tag> getTags (boolean useCache) throws APIException {
         if (DEBUG) Log.i(TAG, "-> getTags");
         try {
-            String text = NetworkUtil.get(ApiManager.API_TAGS);
+            String text = NetworkUtil.get(ApiManager.API_TAGS, useCache);
             if (DEBUG) Log.i(TAG, "-> get -> success");
             JSONObject root = JSON.parseObject(text);
             JSONArray data = root.getJSONArray("data");

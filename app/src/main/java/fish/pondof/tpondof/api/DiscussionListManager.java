@@ -25,12 +25,12 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class DiscussionListManager {
     private static final String TAG = "DiscussionListManager";
-    public static List<Discussion> getList () throws APIException {
+    public static List<Discussion> getList (boolean useCache) throws APIException {
         if (DEBUG) Log.i(TAG, "-> getList");
         List<Discussion> list = new ArrayList<>();
         try {
             JSONObject rootObject = JSONObject.parseObject(NetworkUtil
-                    .get(ApiManager.API_DISCUSSIONS));
+                    .get(ApiManager.API_DISCUSSIONS, useCache));
             if (DEBUG) Log.i(TAG, "Json Parsed");
             JSONArray dataArray = rootObject.getJSONArray("data");
             if (DEBUG) Log.i(TAG, "Data Size:" + dataArray.size());
@@ -89,8 +89,10 @@ public class DiscussionListManager {
                 }
                 discussion.setTags(t);
 
-                discussion.setAuthor(UserItemManager.getUserInfo(startUser.getJSONObject("data").getInteger("id")));
-                discussion.setLastUser(UserItemManager.getUserInfo(lastUser.getJSONObject("data").getInteger("id")));
+                discussion.setAuthor(UserItemManager.getUserInfo(startUser
+                        .getJSONObject("data").getInteger("id"), useCache));
+                discussion.setLastUser(UserItemManager.getUserInfo(lastUser
+                        .getJSONObject("data").getInteger("id"), useCache));
 
                 if (DEBUG) Log.i(TAG, "Adding " + discussion.toString());
                 list.add(discussion);

@@ -37,10 +37,11 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class NetworkUtil {
     private static final String TAG = "Network";
-    public static String get (String url) throws IOException {
+    public static String get (String url, boolean useCache) throws IOException {
         if (DEBUG) Log.i(TAG, "Get requested:" + url);
+        if (DEBUG) Log.i(TAG, "Use cache:" + useCache);
         String cache = App.getCache().getAsString(url);
-        if (cache != null && !cache.isEmpty()) {
+        if (useCache && cache != null && !cache.isEmpty()) {
             if (DEBUG) Log.i(TAG, "Get from cache");
             return cache;
         }

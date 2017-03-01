@@ -53,7 +53,7 @@ public class UserItemManager {
             throw new APIException(e);
         }
     }
-    public static User getUserInfo (int uid) throws APIException {
+    public static User getUserInfo (int uid, boolean useCache) throws APIException {
         if (mCachedUsers.containsKey(uid)) {
             return mCachedUsers.get(uid);
         }
@@ -61,7 +61,7 @@ public class UserItemManager {
             return getUserInfo(uid
                     , JSONObject
                             .parseObject(NetworkUtil
-                                    .get(ApiManager.API_USER_BY_ID + uid)), true);
+                                    .get(ApiManager.API_USER_BY_ID + uid, useCache)), true);
         } catch (IOException|APIException e) {
             throw new APIException(e);
         }

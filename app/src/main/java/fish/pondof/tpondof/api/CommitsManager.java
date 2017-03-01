@@ -27,10 +27,11 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class CommitsManager {
     private static final String TAG = "CommitsManager";
-    public static List<Commit> getCommitForDiscussion (Discussion discussion) throws APIException {
+    public static List<Commit> getCommitForDiscussion (Discussion discussion, boolean useCache) throws APIException {
         if (DEBUG) Log.i(TAG, "-> start");
         try {
-            String text = NetworkUtil.get(ApiManager.API_DISCUSSIONS + "/" + discussion.getID());
+            String text = NetworkUtil.get(ApiManager.API_DISCUSSIONS + "/" + discussion.getID(),
+                    useCache);
             List<Commit> commits = new ArrayList<>();
             JSONObject root = JSON.parseObject(text);
             JSONArray included = root.getJSONArray("included");
@@ -62,12 +63,12 @@ public class CommitsManager {
                 commit.setCanLike(attributes.getBoolean("canLike"));
                 JSONObject relationships = object.getJSONObject("relationships");
                 commit.setUser(UserItemManager.getUserInfo(relationships.getJSONObject("user")
-                        .getJSONObject("data").getInteger("id")));
+                        .getJSONObject("data").getInteger("id"), useCache));
                 JSONArray likes = relationships.getJSONObject("likes").getJSONArray("data");
                 List<User> likesList = new ArrayList<>();
                 for (int j = 0; j < likes.size(); j ++) {
                     likesList.add(UserItemManager.getUserInfo(likes.getJSONObject(i)
-                            .getInteger("id")));
+                            .getInteger("id"), useCache));
                 }
                 commit.setLikes(likesList);
                 /*

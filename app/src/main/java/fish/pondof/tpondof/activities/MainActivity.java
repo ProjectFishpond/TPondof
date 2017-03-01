@@ -31,8 +31,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fish.pondof.tpondof.App;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.APIException;
+import fish.pondof.tpondof.api.ApiManager;
 import fish.pondof.tpondof.api.DiscussionListManager;
 import fish.pondof.tpondof.api.TagManager;
 import fish.pondof.tpondof.api.model.Discussion;
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                refresh(false);
             }
         });
 
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         mDiscussionListAdapter = new DiscussionListAdapter(this, mQueriedDiscussionList);
         mListView.setAdapter(mDiscussionListAdapter);
 
-        refresh();
+        refresh(true);
     }
 
     @Override
@@ -131,14 +133,14 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void refresh () {
+    private void refresh (final boolean useCache) {
         final String TAG = "Refresh Discussion List";
         Observable<Object> refreshObservable = Observable.create(new Observable.OnSubscribe<Object>() {
             public void call(Subscriber<? super Object> subscriber) {
                 if (DEBUG) Log.i(TAG, "-> subscribe -> " + Thread.currentThread().getName());
                 subscriber.onStart();
                 try {
-                    subscriber.onNext(DiscussionListManager.getList());
+                    subscriber.onNext(DiscussionListManager.getList(useCache));
                     subscriber.onCompleted();
                 } catch (APIException e) {
                     subscriber.onError(e);

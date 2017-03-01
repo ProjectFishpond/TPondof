@@ -78,11 +78,11 @@ public class DiscussionViewActivity extends AppCompatActivity {
             public void onRefresh() {
                 mListView.setAdapter(null);
                 mAdapter = null;
-                App.getCache().remove(ApiManager.API_DISCUSSIONS + "/" + mDiscussion.getID());
+                refresh(false);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        refresh();
+        refresh(true);
     }
 
     @Override
@@ -95,13 +95,13 @@ public class DiscussionViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void refresh () {
+    private void refresh (final boolean useCache) {
         Observable<Object> objectObservable = Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
                 subscriber.onStart();
                 try {
-                    mCommitList = CommitsManager.getCommitForDiscussion(mDiscussion);
+                    mCommitList = CommitsManager.getCommitForDiscussion(mDiscussion, useCache);
                 } catch (APIException e) {
                     subscriber.onError(e);
                 }
