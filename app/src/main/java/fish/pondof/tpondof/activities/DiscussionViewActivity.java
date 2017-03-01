@@ -143,7 +143,9 @@ public class DiscussionViewActivity extends AppCompatActivity {
                             @Override
                             public void onJump(Commit commit, final int id) {
                                 AlertDialog dialog = new AlertDialog.Builder(DiscussionViewActivity.this)
-                                        .setTitle("#" + id)
+                                        .setTitle(commit.getUser().getUsername()
+                                                + "#" + id)
+                                        .setIcon(R.drawable.ic_reply_black_24dp)
                                         .setMessage(Html.fromHtml(commit.getContentHtml(), new Html.ImageGetter() {
                                             @Override
                                             public Drawable getDrawable(String s) {

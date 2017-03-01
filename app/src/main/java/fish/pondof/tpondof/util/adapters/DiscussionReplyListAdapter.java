@@ -72,11 +72,16 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
             @Override
             public boolean onLinkClick(String url) {
                 if (DEBUG) Log.i(TAG, "onLinkClick:" + url);
-                int index = Utils.isCommitJump(url);
+                int index = Utils.isCommitJump(url) - 1;
                 if (index != -1) {
                     if (mListener != null) {
-                        mListener.onJump(mCommitList.get(index), index);
-                        return true;
+                        for (Commit commit1 : mCommitList) {
+                            if (commit1.getNumber() == index) {
+                                mListener.onJump(mCommitList.get(index), index);
+                                return true;
+                            }
+                        }
+                        return false;
                     }
                 }
                 return false;
