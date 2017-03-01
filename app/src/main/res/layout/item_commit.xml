@@ -15,6 +15,7 @@
             android:layout_width="@dimen/post_item_avatar_width"
             android:layout_height="@dimen/post_item_avatar_height" />
         <TextView
+            android:paddingTop="2dp"
             android:id="@+id/text_pos"
             android:text="@string/app_name"
             android:layout_gravity="center_horizontal"

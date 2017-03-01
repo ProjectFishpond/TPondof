@@ -3,6 +3,8 @@ package fish.pondof.tpondof.util;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
@@ -71,5 +73,24 @@ public class Utils {
             return Integer.parseInt(strings[1]);
         }
         return -1;
+    }
+
+    /**
+     * @see <a href="http://stackoverflow.com/questions/24811536/android-listview-get-item-view-by-position" >android - listview get item view by position
+    </a>
+     * @param pos
+     * @param listView
+     * @return
+     */
+    public static View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
     }
 }

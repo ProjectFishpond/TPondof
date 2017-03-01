@@ -3,4 +3,9 @@
     <color name="colorPrimary">#FAFAFA</color>
     <color name="colorPrimaryDark">#F5F5F5</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="battery_saver_mode_color">#fff4511e</color><!-- deep orange 600 -->
+    <color name="system_bar_background_opaque">#ff000000</color>
+    <color name="system_bar_background_transparent">#00000000</color>
+    <!-- Status bar color for semi transparent mode. -->
+    <color name="system_bar_background_semi_transparent">#66000000</color> <!-- 40% black -->
 </resources>

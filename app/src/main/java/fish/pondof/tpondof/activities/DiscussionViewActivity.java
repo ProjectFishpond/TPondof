@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -32,6 +33,8 @@ import fish.pondof.tpondof.api.ApiManager;
 import fish.pondof.tpondof.api.CommitsManager;
 import fish.pondof.tpondof.api.model.Commit;
 import fish.pondof.tpondof.api.model.Discussion;
+import fish.pondof.tpondof.util.BarTransitions;
+import fish.pondof.tpondof.util.Utils;
 import fish.pondof.tpondof.util.adapters.DiscussionReplyListAdapter;
 import rx.Observable;
 import rx.Subscriber;
@@ -156,7 +159,8 @@ public class DiscussionViewActivity extends AppCompatActivity {
                                         .setPositiveButton(R.string.action_goto, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                mListView.smoothScrollToPosition(id);
+                                                mListView.setSelection(id);
+                                                changeColor(id);
                                             }
                                         })
                                         .create();
@@ -166,5 +170,25 @@ public class DiscussionViewActivity extends AppCompatActivity {
                         mListView.setAdapter(mAdapter);
                     }
                 });
+    }
+    private boolean mIsChangingColor = false;
+    private synchronized void changeColor (int id) {
+        if (mIsChangingColor)
+            return;
+        mIsChangingColor = true;
+        // Change color
+        final View view = Utils.getViewByPosition(id, mListView);
+        final BarTransitions transitions =
+                new BarTransitions(view, R.drawable.ic_reply_black_24dp);
+        transitions.transitionTo(BarTransitions.MODE_WARNING, true);
+        mListView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mListView.setOnTouchListener(null);
+                transitions.transitionTo(BarTransitions.MODE_LIGHTS_OUT_TRANSPARENT, true);
+                mIsChangingColor = false;
+                return false;
+            }
+        });
     }
 }

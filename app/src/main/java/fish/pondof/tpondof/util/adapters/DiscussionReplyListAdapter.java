@@ -75,13 +75,8 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
                 int index = Utils.isCommitJump(url) - 1;
                 if (index != -1) {
                     if (mListener != null) {
-                        for (Commit commit1 : mCommitList) {
-                            if (commit1.getNumber() == index) {
-                                mListener.onJump(mCommitList.get(index), index);
-                                return true;
-                            }
-                        }
-                        return false;
+                        mListener.onJump(mCommitList.get(index), index);
+                        return true;
                     }
                 }
                 return false;
