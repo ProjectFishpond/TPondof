@@ -17,6 +17,7 @@ import com.squareup.picasso.RequestCreator;
 import java.io.IOException;
 import java.util.Map;
 
+import fish.pondof.tpondof.App;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.ApiManager;
 import okhttp3.FormBody;
@@ -38,11 +39,20 @@ public class NetworkUtil {
     private static final String TAG = "Network";
     public static String get (String url) throws IOException {
         if (DEBUG) Log.i(TAG, "Get requested:" + url);
+        String cache = App.getCache().getAsString(url);
+        if (cache != null && !cache.isEmpty()) {
+            if (DEBUG) Log.i(TAG, "Get from cache");
+            return cache;
+        }
+        if (DEBUG) Log.i(TAG, "Get from web");
         Request request = new Request.Builder()
                 .url(url)
                 .build();
         Response response = new OkHttpClient().newCall(request).execute();
-        return response.body().string();
+        String responseString = response.body().string();
+        App.getCache().put(url, responseString);
+        if (DEBUG) Log.i(TAG, "Writing to cache");
+        return responseString;
     }
     public static String post (String url, Map<String, String> value) throws IOException {
         FormBody.Builder b = new FormBody.Builder();

@@ -7,6 +7,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -69,7 +71,18 @@ public class DiscussionViewActivity extends AppCompatActivity {
                 //refresh();
             }
         });
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         refresh();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home :
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void refresh () {
@@ -113,7 +126,9 @@ public class DiscussionViewActivity extends AppCompatActivity {
                     public void onCompleted() {
                         if (DEBUG) Log.i(TAG, "-> onCompleted");
                         mRefreshLayout.setRefreshing(false);
-                        mAdapter = new DiscussionReplyListAdapter(DiscussionViewActivity.this, mCommitList);
+                        setTitle(mDiscussion.getTitle());
+                        mAdapter = new DiscussionReplyListAdapter(DiscussionViewActivity.this
+                                , mCommitList);
                         mListView.setAdapter(mAdapter);
                     }
                 });
