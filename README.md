@@ -5,7 +5,7 @@
 所以叫 TPondf，T是Trumeet的意思，即使群里决定暂不开发App，也可以叫做非官方的客户端。  
 # 开发进度（TaskList）
 ```
-Retrofit重构 [Trumeet](https://lyt.letitfly.me)
+Retrofit重构 @Trumeet
 ```
 # Licence
 ` GPL 3.0 `
