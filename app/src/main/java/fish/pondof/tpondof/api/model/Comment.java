@@ -10,7 +10,7 @@ import java.util.List;
  * @author Trumeet
  */
 
-public class Commit implements Parcelable{
+public class Comment implements Parcelable{
     private int id;
     private int number;
     private String time;
@@ -24,9 +24,9 @@ public class Commit implements Parcelable{
     private List<User> likes; // Likes user id list
     private List<User> metionedBy;
 
-    public Commit() {}
+    public Comment() {}
 
-    protected Commit(Parcel in) {
+    protected Comment(Parcel in) {
         id = in.readInt();
         number = in.readInt();
         time = in.readString();
@@ -41,15 +41,15 @@ public class Commit implements Parcelable{
         metionedBy = in.createTypedArrayList(User.CREATOR);
     }
 
-    public static final Creator<Commit> CREATOR = new Creator<Commit>() {
+    public static final Creator<Comment> CREATOR = new Creator<Comment>() {
         @Override
-        public Commit createFromParcel(Parcel in) {
-            return new Commit(in);
+        public Comment createFromParcel(Parcel in) {
+            return new Comment(in);
         }
 
         @Override
-        public Commit[] newArray(int size) {
-            return new Commit[size];
+        public Comment[] newArray(int size) {
+            return new Comment[size];
         }
     };
 

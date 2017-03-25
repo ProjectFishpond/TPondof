@@ -40,6 +40,7 @@ import fish.pondof.tpondof.api.TagManager;
 import fish.pondof.tpondof.api.model.Discussion;
 import fish.pondof.tpondof.api.model.Tag;
 import fish.pondof.tpondof.util.IconBuilder;
+import fish.pondof.tpondof.util.UIUtil;
 import fish.pondof.tpondof.util.Utils;
 import fish.pondof.tpondof.util.adapters.DiscussionListAdapter;
 import rx.Observable;
@@ -82,9 +83,7 @@ public class MainActivity extends AppCompatActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                startActivity(new Intent(MainActivity.this, DiscussionViewActivity.class)
-                .putExtra(DiscussionViewActivity.EXTRA_DISCUSSION
-                        , (Discussion) adapterView.getItemAtPosition(i)));
+                UIUtil.openDiscussionViewActivity(MainActivity.this,((Discussion) adapterView.getItemAtPosition(i)).getID());
             }
         });
 

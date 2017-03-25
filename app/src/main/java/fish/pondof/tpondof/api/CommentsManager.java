@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import fish.pondof.tpondof.api.model.Commit;
+import fish.pondof.tpondof.api.model.Comment;
 import fish.pondof.tpondof.api.model.Discussion;
 import fish.pondof.tpondof.api.model.User;
 import fish.pondof.tpondof.util.NetworkUtil;
@@ -25,14 +25,19 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
  * @author Trumeet
  */
 
-public class CommitsManager {
-    private static final String TAG = "CommitsManager";
-    public static List<Commit> getCommitForDiscussion (Discussion discussion, boolean useCache) throws APIException {
+public class CommentsManager {
+    private static final String TAG = "CommentsManager";
+
+    public static List<Comment> getCommentForDiscussion(Discussion discussion, boolean useCache) throws APIException {
+        return getCommentForDiscussion(discussion.getID(),useCache);
+    }
+
+    public static List<Comment> getCommentForDiscussion(int discussionId, boolean useCache) throws APIException {
         if (DEBUG) Log.i(TAG, "-> start");
         try {
-            String text = NetworkUtil.get(ApiManager.API_DISCUSSIONS + "/" + discussion.getID(),
+            String text = NetworkUtil.get(ApiManager.API_DISCUSSIONS + "/" + discussionId,
                     useCache);
-            List<Commit> commits = new ArrayList<>();
+            List<Comment> comments = new ArrayList<>();
             JSONObject root = JSON.parseObject(text);
             JSONArray included = root.getJSONArray("included");
             if (DEBUG) Log.i(TAG, "Total size: " + included.size());
@@ -51,18 +56,18 @@ public class CommitsManager {
                     }
                 }
                 JSONObject attributes = object.getJSONObject("attributes");
-                Commit commit = new Commit();
-                commit.setId(object.getInteger("id"));
-                commit.setNumber(attributes.getInteger("number"));
-                commit.setTime(attributes.getString("time"));
-                commit.setContentHtml(attributes.getString("contentHtml"));
-                commit.setCanEdit(attributes.getBoolean("canEdit"));
-                commit.setCanDelete(attributes.getBoolean("canDelete"));
-                commit.setCanFlag(attributes.getBoolean("canFlag"));
-                commit.setApproved(attributes.getBoolean("canApprove"));
-                commit.setCanLike(attributes.getBoolean("canLike"));
+                Comment comment = new Comment();
+                comment.setId(object.getInteger("id"));
+                comment.setNumber(attributes.getInteger("number"));
+                comment.setTime(attributes.getString("time"));
+                comment.setContentHtml(attributes.getString("contentHtml"));
+                comment.setCanEdit(attributes.getBoolean("canEdit"));
+                comment.setCanDelete(attributes.getBoolean("canDelete"));
+                comment.setCanFlag(attributes.getBoolean("canFlag"));
+                comment.setApproved(attributes.getBoolean("canApprove"));
+                comment.setCanLike(attributes.getBoolean("canLike"));
                 JSONObject relationships = object.getJSONObject("relationships");
-                commit.setUser(UserItemManager.getUserInfo(relationships.getJSONObject("user")
+                comment.setUser(UserItemManager.getUserInfo(relationships.getJSONObject("user")
                         .getJSONObject("data").getInteger("id"), useCache));
                 JSONArray likes = relationships.getJSONObject("likes").getJSONArray("data");
                 List<User> likesList = new ArrayList<>();
@@ -70,7 +75,7 @@ public class CommitsManager {
                     likesList.add(UserItemManager.getUserInfo(likes.getJSONObject(i)
                             .getInteger("id"), useCache));
                 }
-                commit.setLikes(likesList);
+                comment.setLikes(likesList);
                 /*
                 JSONArray mentionedBy = relationships.getJSONObject("mentionedBy")
                         .getJSONArray("data");
@@ -78,24 +83,24 @@ public class CommitsManager {
                 for (int j = 0; j < mentionedBy.size(); j ++) {
                     mentionedByList.add(UserItemManager.getUserInfo(mentionedBy.getJSONObject(j).getInteger("id")));
                 }
-                commit.setMetionedBy(mentionedByList);
+                comment.setMetionedBy(mentionedByList);
                 */
-                if (DEBUG) Log.i(TAG, "Adding " + commit);
-                commits.add(commit);
+                if (DEBUG) Log.i(TAG, "Adding " + comment);
+                comments.add(comment);
             }
             // Sort by number
-            Collections.sort(commits, new Comparator<Commit>() {
+            Collections.sort(comments, new Comparator<Comment>() {
                 @Override
-                public int compare(Commit commit, Commit t1) {
-                    if (commit.getNumber() > t1.getNumber()) {
+                public int compare(Comment comment, Comment t1) {
+                    if (comment.getNumber() > t1.getNumber()) {
                         return 1;
-                    } else if (commit.getNumber() < t1.getNumber()) {
+                    } else if (comment.getNumber() < t1.getNumber()) {
                         return -1;
                     }
                     return 0;
                 }
             });
-            return commits;
+            return comments;
         } catch (IOException|JSONException|NullPointerException e) {
             throw new APIException(e);
         }

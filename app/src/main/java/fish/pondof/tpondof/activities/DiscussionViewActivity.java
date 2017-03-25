@@ -16,23 +16,17 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.droidlover.xrichtext.XRichText;
-import fish.pondof.tpondof.App;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.APIException;
-import fish.pondof.tpondof.api.ApiManager;
-import fish.pondof.tpondof.api.CommitsManager;
-import fish.pondof.tpondof.api.model.Commit;
-import fish.pondof.tpondof.api.model.Discussion;
+import fish.pondof.tpondof.api.CommentsManager;
+import fish.pondof.tpondof.api.model.Comment;
 import fish.pondof.tpondof.util.BarTransitions;
 import fish.pondof.tpondof.util.Utils;
 import fish.pondof.tpondof.util.adapters.DiscussionReplyListAdapter;
@@ -50,16 +44,16 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class DiscussionViewActivity extends AppCompatActivity {
     private static final String TAG = "DiscussionViewActivity";
-    public static final String EXTRA_DISCUSSION = DiscussionViewActivity.class.getSimpleName()
-             + ".EXTRA_DISCUSSION";
-    private Discussion mDiscussion;
+    public static final String EXTRA_DISCUSSION_ID = DiscussionViewActivity.class.getSimpleName()
+             + ".EXTRA_DISCUSSION_ID";
+    private int mDiscussionId;
 
     @BindView(R.id.list)
     ListView mListView;
     @BindView(R.id.swipe)
     SwipeRefreshLayout mRefreshLayout;
     private DiscussionReplyListAdapter mAdapter;
-    private List<Commit> mCommitList = new ArrayList<>();
+    private List<Comment> mCommentList = new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +63,8 @@ public class DiscussionViewActivity extends AppCompatActivity {
             finish();
             return;
         }
-        mDiscussion = intent.getParcelableExtra(EXTRA_DISCUSSION);
-        if (mDiscussion == null) {
+        mDiscussionId = intent.getIntExtra(EXTRA_DISCUSSION_ID,-1);
+        if (mDiscussionId < 0) {
             finish();
             return;
         }
@@ -104,7 +98,7 @@ public class DiscussionViewActivity extends AppCompatActivity {
             public void call(Subscriber<? super Object> subscriber) {
                 subscriber.onStart();
                 try {
-                    mCommitList = CommitsManager.getCommitForDiscussion(mDiscussion, useCache);
+                    mCommentList = CommentsManager.getCommentForDiscussion(mDiscussionId, useCache);
                 } catch (APIException e) {
                     subscriber.onError(e);
                 }
@@ -139,17 +133,17 @@ public class DiscussionViewActivity extends AppCompatActivity {
                     public void onCompleted() {
                         if (DEBUG) Log.i(TAG, "-> onCompleted");
                         mRefreshLayout.setRefreshing(false);
-                        setTitle(mDiscussion.getTitle());
+                        setTitle("帖子详情");
                         mAdapter = new DiscussionReplyListAdapter(DiscussionViewActivity.this
-                                , mCommitList);
+                                , mCommentList, mDiscussionId);
                         mAdapter.setListener(new DiscussionReplyListAdapter.CommitListener() {
                             @Override
-                            public void onJump(Commit commit, final int id) {
+                            public void onJump(Comment comment, final int id) {
                                 AlertDialog dialog = new AlertDialog.Builder(DiscussionViewActivity.this)
-                                        .setTitle(commit.getUser().getUsername()
+                                        .setTitle(comment.getUser().getUsername()
                                                 + "#" + id)
                                         .setIcon(R.drawable.ic_reply_black_24dp)
-                                        .setMessage(Html.fromHtml(commit.getContentHtml(), new Html.ImageGetter() {
+                                        .setMessage(Html.fromHtml(comment.getContentHtml(), new Html.ImageGetter() {
                                             @Override
                                             public Drawable getDrawable(String s) {
                                                 // Not show image

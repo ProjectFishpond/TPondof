@@ -19,9 +19,9 @@ import cn.droidlover.xrichtext.XRichText;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fish.pondof.tpondof.R;
 import fish.pondof.tpondof.api.ApiManager;
-import fish.pondof.tpondof.api.model.Commit;
+import fish.pondof.tpondof.api.model.Comment;
 import fish.pondof.tpondof.util.NetworkUtil;
-import fish.pondof.tpondof.util.Utils;
+import fish.pondof.tpondof.util.UrlRouterUtil;
 
 import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
@@ -32,21 +32,23 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 public class DiscussionReplyListAdapter extends ArrayAdapter {
     private Context mContext;
-    private List<Commit> mCommitList;
+    private List<Comment> mCommentList;
     private CommitListener mListener;
+    private int mDiscussionId;
 
     public interface CommitListener {
-        void onJump (Commit commit, int id);
+        void onJump (Comment comment, int id);
     }
 
     public void setListener (@Nullable CommitListener listener) {
         mListener = listener;
     }
 
-    public DiscussionReplyListAdapter (Context context, List<Commit> commits) {
-        super(context, 0, commits);
+    public DiscussionReplyListAdapter (Context context, List<Comment> comments, int mDiscussionId) {
+        super(context, 0, comments);
         mContext = context;
-        mCommitList = commits;
+        mCommentList = comments;
+        this.mDiscussionId = mDiscussionId;
     }
 
     @NonNull
@@ -56,10 +58,10 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_commit, parent, false);
         }
         // TODO
-        Commit commit = mCommitList.get(position);
+        Comment comment = mCommentList.get(position);
 
         TextView userNameText = (TextView) convertView.findViewById(android.R.id.text1);
-        userNameText.setText(commit.getUser().getUsername());
+        userNameText.setText(comment.getUser().getUsername());
 
         XRichText contentText = (XRichText) convertView.findViewById(android.R.id.text2);
         contentText.callback(new XRichText.Callback() {
@@ -72,10 +74,15 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
             @Override
             public boolean onLinkClick(String url) {
                 if (DEBUG) Log.i(TAG, "onLinkClick:" + url);
-                int index = Utils.isCommitJump(url) - 1;
+                // 帖子之间跳转
+                if(UrlRouterUtil.isInnerJump(mContext, url, mDiscussionId)){
+                    return true;
+                }
+                // 评论之间跳转
+                int index = UrlRouterUtil.isCommentJump(mContext,url,mDiscussionId);
                 if (index != -1) {
                     if (mListener != null) {
-                        mListener.onJump(mCommitList.get(index), index);
+                        mListener.onJump(mCommentList.get(index), index);
                         return true;
                     }
                 }
@@ -98,13 +105,13 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
                 if (DEBUG) Log.i(TAG, "Load url:" + urlNew);
                 return NetworkUtil.buildPicasso(mContext, urlNew).get();
             }
-        }).text(commit.getContentHtml());
+        }).text(comment.getContentHtml());
 
         TextView posText = (TextView) convertView.findViewById(R.id.text_pos);
         posText.setText("#" + position);
 
         CircleImageView avatar = (CircleImageView) convertView.findViewById(R.id.avatar);
-        NetworkUtil.loadImage(commit.getUser().getAvatarUrl(), avatar);
+        NetworkUtil.loadImage(comment.getUser().getAvatarUrl(), avatar);
 
         return convertView;
     }
