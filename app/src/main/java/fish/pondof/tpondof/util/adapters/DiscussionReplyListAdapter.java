@@ -27,6 +27,7 @@ import static fish.pondof.tpondof.BuildConfig.DEBUG;
 
 /**
  * Created by Trumeet on 2017/2/27.
+ *
  * @author Trumeet
  */
 
@@ -37,14 +38,14 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
     private int mDiscussionId;
 
     public interface CommitListener {
-        void onJump (Comment comment, int id);
+        void onJump(Comment comment, int id);
     }
 
-    public void setListener (@Nullable CommitListener listener) {
+    public void setListener(@Nullable CommitListener listener) {
         mListener = listener;
     }
 
-    public DiscussionReplyListAdapter (Context context, List<Comment> comments, int mDiscussionId) {
+    public DiscussionReplyListAdapter(Context context, List<Comment> comments, int mDiscussionId) {
         super(context, 0, comments);
         mContext = context;
         mCommentList = comments;
@@ -66,6 +67,7 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
         XRichText contentText = (XRichText) convertView.findViewById(android.R.id.text2);
         contentText.callback(new XRichText.Callback() {
             private static final String TAG = "RichText";
+
             @Override
             public void onImageClick(List<String> urlList, int position) {
 
@@ -75,15 +77,20 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
             public boolean onLinkClick(String url) {
                 if (DEBUG) Log.i(TAG, "onLinkClick:" + url);
                 // 帖子之间跳转
-                if(UrlRouterUtil.isInnerJump(mContext, url, mDiscussionId)){
+                if (UrlRouterUtil.isInnerJump(mContext, url, mDiscussionId)) {
                     return true;
                 }
                 // 评论之间跳转
-                int index = UrlRouterUtil.isCommentJump(mContext,url,mDiscussionId);
-                if (index != -1) {
+                int commentId = UrlRouterUtil.isCommentJump(mContext, url, mDiscussionId);
+                if (commentId != -1) {
                     if (mListener != null) {
-                        mListener.onJump(mCommentList.get(index), index);
-                        return true;
+                        for (int pos = 0; pos < mCommentList.size(); pos++) {
+                            Comment tempComment = mCommentList.get(pos);
+                            if (commentId == tempComment.getNumber()) {
+                                mListener.onJump(tempComment, pos);
+                                return true;
+                            }
+                        }
                     }
                 }
                 return false;
@@ -94,6 +101,7 @@ public class DiscussionReplyListAdapter extends ArrayAdapter {
             }
         }).imageDownloader(new ImageLoader() {
             private static final String TAG = "RichText-ImageLoader";
+
             @Override
             public Bitmap getBitmap(String url) throws IOException {
                 if (DEBUG) Log.i(TAG, "-> getBitmap");
